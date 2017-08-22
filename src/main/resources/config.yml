@@ -1,0 +1,16 @@
+﻿WorldRegenList:
+- NekoRegenSampleWorld
+RegenParams:
+  NekoRegenSampleWorld:
+    lastRegenDate: '2017-01-01 00:00:00'
+    month: 0
+    dayOfWeek: 0
+    hour: 0
+    environment: NORMAL
+    worldType: NORMAL
+    difficulty: NORMAL
+    alias: 再生成サンプルワールド
+    color: DARKGRAY
+    message: 再生成サンプルワールドを再生成しました!
+    commandList:
+    - wb NekoRegenSampleWorld set 1500 0 0

@@ -1,0 +1,16 @@
+WorldRegenList:
+- NekoRegenSampleWorld
+RegenParams:
+  NekoRegenSampleWorld:
+    lastRegenDate: '2017-01-01 00:00:00'
+    month: 0                                     #何ヶ月周期で再生成するか
+    dayOfWeek: 0                                 #EVERYDAY(0) SUNDAY(1) MONDAY(2) TUESDAY(3) WEDNESDAY(4) THURSDAY(5) FRIDAY(6) SATURDAY(7)
+    hour: 0                                      #何時に再生成するか(0~23)
+    environment: NORMAL                          #NORMAL, NETHER, THE_END
+    worldType: NORMAL                            #NORMAL, FLAT
+    difficulty: NORMAL                           #EASY, NORMAL, HARD
+    alias: 再生成サンプルワールド
+    color: DARKGRAY
+    message: 再生成サンプルワールドを再生成しました!  #再生成完了時にアナウンスされるメッセージ
+    commandList:                                 #再生成完了時に実行されるコマンドリスト(実行順は不定)
+    - wb NekoRegenSampleWorld set 1500 0 0

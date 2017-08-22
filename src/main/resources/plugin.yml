@@ -1,0 +1,12 @@
+name: NekoWorldRegen
+main: jp.kentan.minecraft.neko_world_regen.NekoWorldRegen
+version: 1.0.0
+author: ken_kentan
+website: http://ken.kentan.jp
+
+commands:
+    regen:
+        description: NekoWorldRegen
+        usage: /<command>
+        permission: neko.regen
+        permission-message: You don't have <permission>
