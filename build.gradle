@@ -19,8 +19,8 @@ dependencies {
 
 //    compile 'commons-io:commons-io:2.5'
 
-    compile 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
-    compile files('libs/Multiverse-Core-2.5.1.jar') //http://repo.onarandombox.com/content/repositories/multiverse/com/onarandombox/multiversecore/Multiverse-Core/
+    compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
+    compileOnly files('libs/Multiverse-Core-2.5.1.jar') //http://repo.onarandombox.com/content/repositories/multiverse/com/onarandombox/multiversecore/Multiverse-Core/
 }
 
 compileJava.options.encoding = 'UTF-8'

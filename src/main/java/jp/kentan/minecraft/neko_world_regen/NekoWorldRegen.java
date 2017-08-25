@@ -11,6 +11,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -103,11 +104,13 @@ public class NekoWorldRegen extends JavaPlugin {
     }
 
     private void startTimer(){
-        getServer().getScheduler().runTaskTimer(this, () -> mRegenParamList.forEach(param -> {
+        final BukkitScheduler scheduler = getServer().getScheduler();
+
+        scheduler.runTaskTimerAsynchronously(this, () -> mRegenParamList.forEach(param -> {
             if(param.isRegenDate()){
-                mWorldRegenerator.regen(param);
+                scheduler.scheduleSyncDelayedTask(this, () -> mWorldRegenerator.regen(param));
             }
-        }), 20*60L*5L, 20*60L*5L); //20ticks = 1sec
+        }), 20*60L, 20*60L); //20ticks = 1sec
     }
 
     private MultiverseCore loadMultiverseCore() {
