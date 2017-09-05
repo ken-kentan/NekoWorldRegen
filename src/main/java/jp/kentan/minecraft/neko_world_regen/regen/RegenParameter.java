@@ -14,7 +14,6 @@ public class RegenParameter{
     private Updatable mUpdatable;
 
     private Calendar mLastRegenDate;
-    private int mLastRegenMonth;
     private int mLastRegenDay;
 
     private int mMonth;
@@ -37,7 +36,6 @@ public class RegenParameter{
         mLastRegenDate = Calendar.getInstance(Locale.JAPAN);
         mLastRegenDate.setTime(lastRegenDate);
 
-        mLastRegenMonth = mLastRegenDate.get(MONTH);
         mLastRegenDay   = mLastRegenDate.get(DAY_OF_MONTH);
 
         mMonth = month;
@@ -60,7 +58,6 @@ public class RegenParameter{
 
         mLastRegenDate.setTime(date);
 
-        mLastRegenMonth = mLastRegenDate.get(MONTH);
         mLastRegenDay   = mLastRegenDate.get(DAY_OF_MONTH);
 
         mUpdatable.updateLastRegenDate("RegenParams." + mWorldName + ".lastRegenDate", date);
