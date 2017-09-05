@@ -18,6 +18,8 @@ public class WorldRegenerator {
 
     private MVWorldManager mWorldManager;
 
+    private final Random RANDOM = new Random();
+
     public WorldRegenerator(Server server, MultiverseCore multiverseCore){
         mServer = server;
         mCommandSender = server.getConsoleSender();
@@ -39,7 +41,7 @@ public class WorldRegenerator {
             }
         }
 
-        final String seed = String.valueOf(new Random().nextInt(100000));
+        final String seed = String.valueOf(RANDOM.nextLong());
 
         if(!mWorldManager.addWorld(param.mWorldName, param.mEnvironment, seed, param.mWorldType, false, "")){
             Log.warn("failed to regen world of '" + param.mWorldName + "'");
