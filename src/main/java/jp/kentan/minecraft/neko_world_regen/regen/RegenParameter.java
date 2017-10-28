@@ -1,101 +1,109 @@
 package jp.kentan.minecraft.neko_world_regen.regen;
 
 import jp.kentan.minecraft.neko_world_regen.config.Updatable;
+import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldType;
 
+import java.io.File;
+import java.time.DayOfWeek;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.*;
 
-import static java.util.Calendar.*;
 
 public class RegenParameter{
-    //schedule
-    private Updatable mUpdatable;
 
-    private Calendar mLastRegenDate;
-    private int mLastRegenDay;
+    private ZonedDateTime mLastRegenDate;
 
-    private int mMonth;
-    private int mDayOfWeek; //if 0 everyday
-    private int mHour;
+    //Period
+    private int mMonth, mHour;
+    private DayOfWeek mDayOfWeek;
 
-    //param
-    String mWorldName;
-    World.Environment mEnvironment;
-    WorldType mWorldType;
-    Difficulty mDifficulty;
-    String mAlias, mColor;
-    List<String> mFinishCommandList = new ArrayList<>();
-    String mBroadcastMessage;
+    private final String NAME;
 
-    public RegenParameter(Updatable updatable, Date lastRegenDate, int month, int dayOfWeek, int hour, String worldName, World.Environment environment, WorldType worldType,
-                          Difficulty difficulty, String alias, String color, String broadcastMessage, List<String> finishCmdList){
-        mUpdatable = updatable;
+    //World
+    final String WORLD_NAME;
+    final World.Environment ENVIRONMENT;
+    final WorldType WORLD_TYPE;
+    final Difficulty DIFFICULTY;
 
-        mLastRegenDate = Calendar.getInstance(Locale.JAPAN);
-        mLastRegenDate.setTime(lastRegenDate);
+    //Alias
+    final String ALIAS;
+    final AliasColor ALIAS_COLOR;
 
-        mLastRegenDay   = mLastRegenDate.get(DAY_OF_MONTH);
+    //Spawn
+    final File SCHEMATIC_FILE;
+    final int PROTECT_SIZE;
+
+    final String BROADCAST_MSG;
+
+    final List<String> FINISH_CMD_LIST = new ArrayList<>();
+
+    private final Updatable CALLBACK;
+
+
+    public RegenParameter(String name, ZonedDateTime lastRegenDate,
+                          String worldName, World.Environment environment, WorldType worldType, Difficulty difficulty,
+                          String alias, AliasColor aliasColor,
+                          int month, DayOfWeek dayOfWeek, int hour,
+                          File schematicFile, int protectSize,
+                          String broadcastMessage, List<String> finishCmdList, Updatable updatable){
+
+        mLastRegenDate = lastRegenDate;
+
+        NAME = name;
+
+        WORLD_NAME = worldName;
+        ENVIRONMENT = environment;
+        WORLD_TYPE = worldType;
+        DIFFICULTY = difficulty;
+
+        ALIAS = alias;
+        ALIAS_COLOR = aliasColor;
 
         mMonth = month;
         mDayOfWeek = dayOfWeek;
         mHour = hour;
 
-        mWorldName = worldName;
-        mEnvironment = environment;
-        mWorldType = worldType;
-        mDifficulty = difficulty;
-        mAlias = alias;
-        mColor = color;
-        mBroadcastMessage = broadcastMessage;
+        SCHEMATIC_FILE = schematicFile;
+        PROTECT_SIZE = protectSize;
 
-        mFinishCommandList.addAll(finishCmdList);
+        BROADCAST_MSG = ChatColor.translateAlternateColorCodes('&', broadcastMessage);
+
+        FINISH_CMD_LIST.addAll(finishCmdList);
+
+        CALLBACK = updatable;
     }
 
     void updateLastRegenDate(){
-        Date date = new Date();
+        mLastRegenDate = ZonedDateTime.now();
 
-        mLastRegenDate.setTime(date);
-
-        mLastRegenDay   = mLastRegenDate.get(DAY_OF_MONTH);
-
-        mUpdatable.updateLastRegenDate("RegenParams." + mWorldName + ".lastRegenDate", date);
+        CALLBACK.updateLastRegenDate(NAME, mLastRegenDate);
     }
 
-    public String getInfo(){
-        return mWorldName;
-    }
-
-    public boolean isRegenDate(){
-        Calendar now = Calendar.getInstance(Locale.JAPAN);
-
+    public boolean isRegenDate(ZonedDateTime now){
         if(mMonth > 0 && diffMonth(mLastRegenDate, now) < mMonth){
             return false;
         }
 
-        if(mLastRegenDay == now.get(DAY_OF_MONTH)){
+        //check same day
+        if(mLastRegenDate.truncatedTo(ChronoUnit.DAYS).equals(now.truncatedTo(ChronoUnit.DAYS))){
             return false;
         }
 
-        if(mDayOfWeek > 0 && mDayOfWeek != now.get(DAY_OF_WEEK)){
+        //check DayOfWeek
+        if(mDayOfWeek != null && mDayOfWeek != now.getDayOfWeek()){
             return false;
         }
 
-        return now.get(HOUR_OF_DAY) >= mHour;
+        return now.get(ChronoField.HOUR_OF_DAY) >= mHour;
     }
 
-    public boolean equals(String worldName){
-        return mWorldName.equals(worldName);
-    }
-
-    private static int diffMonth(Calendar from, Calendar to){
-        int diff = 0;
-        while (from.before(to)) {
-            from.add(Calendar.MONTH, 1);
-            ++diff;
-        }
-
-        return diff;
+    private static long diffMonth(Temporal from, Temporal to){
+        return ChronoUnit.MONTHS.between(from, to) * 12 + to.get(ChronoField.MONTH_OF_YEAR) - from.get(ChronoField.MONTH_OF_YEAR);
     }
 }

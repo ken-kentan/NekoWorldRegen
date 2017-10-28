@@ -1,5 +1,6 @@
 package jp.kentan.minecraft.neko_world_regen.config;
 
+import jp.kentan.minecraft.neko_world_regen.regen.AliasColor;
 import jp.kentan.minecraft.neko_world_regen.regen.RegenParameter;
 import jp.kentan.minecraft.neko_world_regen.utils.Log;
 import org.bukkit.Difficulty;
@@ -15,21 +16,23 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 public class ConfigManager implements Updatable {
 
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
-    private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     private File mConfigFile;
+    private File mSchematicFolder;
     private String mConfigFilePath;
 
-    private List<RegenParameter> mRegenParamList = new ArrayList<>();
+    private Map<String, RegenParameter> mRegenParamMap = new HashMap<>();
 
     public ConfigManager(Plugin plugin){
         File dataFolder = plugin.getDataFolder();
@@ -42,18 +45,18 @@ public class ConfigManager implements Updatable {
 
     private void setupIfNeed(Plugin plugin){
         File dataFolder = plugin.getDataFolder();
+        mSchematicFolder = new File(dataFolder, "schematics");
 
-        if(dataFolder.exists()){
-            return;
+        if(!dataFolder.exists()){
+            dataFolder.mkdir();
+
+            plugin.saveResource("config.yml", false);
         }
 
-        dataFolder.mkdirs();
+        plugin.saveResource("config_sample.txt", true);
 
-        try {
-            plugin.saveResource("config.yml", false);
-            plugin.saveResource("config_sample.txt", false);
-        } catch (Exception e){
-            Log.warn(e.getMessage());
+        if(!mSchematicFolder.exists()){
+            mSchematicFolder.mkdir();
         }
     }
 
@@ -67,47 +70,67 @@ public class ConfigManager implements Updatable {
 
             reader.close();
         }catch (Exception e){
-            Log.warn(e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void loadRegenParams(FileConfiguration config){
-        List<String> regenWorldList = config.getStringList("WorldRegenList");
+        Set<String> paramNameSet = config.getConfigurationSection("RegenParams").getKeys(false);
 
-        mRegenParamList.clear();
+        mRegenParamMap.clear();
 
-        regenWorldList.forEach(world -> {
-            final String path = "RegenParams." + world + ".";
+        paramNameSet.forEach(name -> {
+            final String path = "RegenParams." + name + ".";
 
             String lastRegenDate = config.getString(path + "lastRegenDate", "2017-01-01 00:00:00");
 
-            int month     = config.getInt(path + "month");
-            int dayOfWeek = config.getInt(path + "dayOfWeek");
-            int hour      = config.getInt(path + "hour");
+            //World
+            String worldName = config.getString(path + "World.name");
+            String type = config.getString(path + "World.type");
+            String env   = config.getString(path + "World.environment");
+            String diff  = config.getString(path + "World.difficulty");
 
-            String env   = config.getString(path + "environment");
-            String type  = config.getString(path + "worldType");
-            String diff  = config.getString(path + "difficulty");
-            String alias = config.getString(path + "alias");
-            String color = config.getString(path + "color");
-            String msg   = config.getString(path + "message");
-            List<String> cmdList = config.getStringList(path + "commandList");
+            //World Alias
+            String alias = config.getString(path + "World.Alias.text");
+            String color = config.getString(path + "World.Alias.color");
 
-            RegenParameter param = compileRegenParam(lastRegenDate, month, dayOfWeek, hour, world, env, type, diff, alias, color, msg, cmdList);
+            //Period
+            int month     = config.getInt(path + "Period.month");
+            String dayOfWeek = config.getString(path + "Period.dayOfWeek");
+            int hour      = config.getInt(path + "Period.hour");
+
+            //Spawn
+            String schematic = config.getString(path + "Spawn.schematic");
+            int protectSize = config.getInt(path + "Spawn.protectSize");
+
+            //Other
+            String broadcastMsg = config.getString(path + "broadcast");
+            List<String> cmds = config.getStringList(path + "finishCommands");
+
+
+            RegenParameter param = compileRegenParam(
+                    name,
+                    lastRegenDate,
+                    worldName, type, env, diff,
+                    alias, color,
+                    month, dayOfWeek, hour,
+                    schematic, protectSize,
+                    broadcastMsg, cmds
+            );
 
             if(param != null) {
-                mRegenParamList.add(param);
+                mRegenParamMap.put(name, param);
             }
         });
     }
 
     @Override
-    public void updateLastRegenDate(String path, Date date) {
+    public void updateLastRegenDate(String paramName, ZonedDateTime date) {
         try {
             FileConfiguration config = new YamlConfiguration();
             config.load(mConfigFile);
 
-            config.set(path, DATE_FORMAT.format(date));
+            config.set("RegenParams." + paramName + ".lastRegenDate", DATE_FORMAT.format(date));
 
             config.save(mConfigFile);
         } catch (Exception e) {
@@ -115,21 +138,75 @@ public class ConfigManager implements Updatable {
         }
     }
 
-    public List<RegenParameter> getRegenParamList(){
-        return mRegenParamList;
+    public Map<String, RegenParameter> getRegenParamMap(){
+        return mRegenParamMap;
     }
 
-    private RegenParameter compileRegenParam(String lastDate, int month, int dayOfWeek, int hour, String name, String env, String type, String diff, String alias, String color, String msg, List<String> cmdList){
+    private RegenParameter compileRegenParam(String name, String strLastDate,
+                                             String worldName, String strWorldType, String strWorldEnv, String strWorldDiff,
+                                             String alias, String strAliasColor,
+                                             int month, String strDayOfWeek, int hour,
+                                             String strSchematic, int protectSize,
+                                             String broadcastMsg, List<String> finishCmds) {
         try {
-            Date date = DATE_FORMAT.parse(lastDate);
-            World.Environment environment = World.Environment.valueOf(env);
-            WorldType worldType = WorldType.valueOf(type);
-            Difficulty difficulty = Difficulty.valueOf(diff);
+            ZonedDateTime lastDate = ZonedDateTime.parse(strLastDate, DATE_FORMAT);
 
-            return new RegenParameter(this, date, month, dayOfWeek, hour, name, environment, worldType, difficulty, alias, color, msg, cmdList);
-        } catch (Exception e){
+            //World
+            WorldType type = WorldType.valueOf(strWorldType);
+            World.Environment env = World.Environment.valueOf(strWorldEnv);
+            Difficulty diff = Difficulty.valueOf(strWorldDiff);
+
+            //Alias
+            AliasColor aliasColor = AliasColor.valueOf(strAliasColor);
+
+            //Period
+            if(month < 0){
+                throw new IllegalArgumentException("Period.month must greater than 0.");
+            }
+
+            if(hour < 0 || hour > 23){
+                throw new IllegalArgumentException("Period.hour must be 0~23.");
+            }
+
+            DayOfWeek dayOfWeek = null;
+            if(!strDayOfWeek.equals("EVERYDAY")){
+                dayOfWeek = DayOfWeek.valueOf(strDayOfWeek);
+            }
+
+            //Spawn
+            File schematicFile = null;
+            if (strSchematic != null && strSchematic.length() > 0) {
+                if(!strSchematic.endsWith(".schematic")){
+                    strSchematic += ".schematic";
+                }
+
+                schematicFile = new File(mSchematicFolder, strSchematic);
+                if (!schematicFile.exists()) {
+                    throw new IllegalArgumentException(schematicFile + " not found.");
+                }
+            }
+
+            if(protectSize != 0) {
+                if (protectSize < 3) {
+                    throw new IllegalArgumentException("Spawn.protectSize must greater than 3.");
+                }
+                if (protectSize % 2 == 0) {
+                    throw new IllegalArgumentException("Spawn.protectSize must be odd number.");
+                }
+            }
+
+
+            return new RegenParameter(
+                    name, lastDate,
+                    worldName, env, type, diff,
+                    alias, aliasColor,
+                    month, dayOfWeek, hour,
+                    schematicFile, protectSize,
+                    broadcastMsg, finishCmds, this
+            );
+        } catch (Exception e) {
             Log.warn("failed to compile RegenParam of '" + name + "'.");
-            Log.warn(e.toString());
+            e.printStackTrace();
 
             return null;
         }

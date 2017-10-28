@@ -1,5 +1,5 @@
 group 'jp.kentan.minecraft.neko_world_regen'
-version '1.0.2'
+version '1.2.3'
 
 apply plugin: 'java'
 
@@ -12,12 +12,25 @@ repositories {
         name = "Spigot"
         url "https://hub.spigotmc.org/nexus/content/groups/public"
     }
+
+    maven {
+        name "sk89q-repo"
+        url "http://maven.sk89q.com/repo/"
+    }
+
+    maven {
+        name "fawe-api"
+        url "http://ci.athion.net/job/FastAsyncWorldEdit/ws/mvn/"
+    }
 }
 
 dependencies {
 //    testCompile group: 'junit', name: 'junit', version: '4.12'
 
     compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
+    compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+    compileOnly 'com.boydti:fawe-api:latest'
     compileOnly files('libs/Multiverse-Core-2.5.1.jar') //http://repo.onarandombox.com/content/repositories/multiverse/com/onarandombox/multiversecore/Multiverse-Core/
 }
 

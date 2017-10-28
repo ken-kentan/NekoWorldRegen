@@ -1,6 +1,5 @@
 package jp.kentan.minecraft.neko_world_regen;
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
 import jp.kentan.minecraft.neko_world_regen.config.ConfigManager;
 import jp.kentan.minecraft.neko_world_regen.regen.RegenParameter;
 import jp.kentan.minecraft.neko_world_regen.regen.WorldRegenerator;
@@ -9,41 +8,35 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class NekoWorldRegen extends JavaPlugin {
 
-    public final static String TAG = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.GRAY + "World" + ChatColor.DARK_AQUA + "Regen" + ChatColor.GRAY + "] " + ChatColor.WHITE;
+    public final static String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.GRAY + "World" + ChatColor.DARK_AQUA + "Regen" + ChatColor.GRAY + "] " + ChatColor.WHITE;
 
     public static String sServerPath;
 
     private ConfigManager mConfig;
-    private WorldRegenerator mWorldRegenerator;
-    private List<RegenParameter> mRegenParamList = Collections.synchronizedList(new ArrayList<>());
+    private Map<String, RegenParameter> mRegenParamMap = Collections.synchronizedMap(new HashMap<String, RegenParameter>());
 
     @Override
     public void onEnable() {
         new Log(getLogger());
 
-        try {
-            MultiverseCore multiverseCore = loadMultiverseCore();
-            mWorldRegenerator = new WorldRegenerator(getServer(), multiverseCore);
-        } catch (Exception e){
+        if(!WorldRegenerator.setup()){
             Log.warn("failed to enable NekoWorldRegen.");
             Bukkit.getPluginManager().disablePlugin(this);
-            return;
         }
 
         mConfig = new ConfigManager(this);
         mConfig.load();
-        mRegenParamList.addAll(mConfig.getRegenParamList());
+
+        mRegenParamMap.putAll(mConfig.getRegenParamMap());
 
         sServerPath = new File(getDataFolder().getAbsolutePath()).getParentFile().getParent();
 
@@ -71,17 +64,17 @@ public class NekoWorldRegen extends JavaPlugin {
         switch (args[0]){
             case "reload":
                 mConfig.load();
-                mRegenParamList.clear();
-                mRegenParamList.addAll(mConfig.getRegenParamList());
+                mRegenParamMap.clear();
+                mRegenParamMap.putAll(mConfig.getRegenParamMap());
 
-                sender.sendMessage(TAG + "reloaded config file.");
+                sender.sendMessage(PREFIX + "reloaded config file.");
                 break;
             case "list":
-                StringBuilder builder = new StringBuilder(TAG + " ---Regen Parameter List---\n");
+                StringBuilder builder = new StringBuilder(PREFIX + " ---Regen Parameter List---\n");
 
-                if(mRegenParamList.size() > 0) {
-                    mRegenParamList.forEach(param -> {
-                        builder.append(param.getInfo());
+                if(mRegenParamMap.size() > 0) {
+                    mRegenParamMap.forEach((key, param) -> {
+                        builder.append(key);
                         builder.append(", ");
                     });
                     builder.delete(builder.length()-2, builder.length());
@@ -92,11 +85,11 @@ public class NekoWorldRegen extends JavaPlugin {
                 sender.sendMessage(builder.toString());
                 break;
             default:
-                mRegenParamList.forEach(param -> {
-                    if(param.equals(args[0])){
-                        mWorldRegenerator.regen(param);
-                    }
-                });
+                if(mRegenParamMap.containsKey(args[0])){
+                    WorldRegenerator.regen(mRegenParamMap.get(args[0]));
+                }else{
+                    sender.sendMessage(PREFIX + ChatColor.YELLOW + args[0] + "は存在しません.");
+                }
                 break;
         }
 
@@ -106,27 +99,21 @@ public class NekoWorldRegen extends JavaPlugin {
     private void startTimer(){
         final BukkitScheduler scheduler = getServer().getScheduler();
 
-        scheduler.runTaskTimerAsynchronously(this, () -> mRegenParamList.forEach(param -> {
-            if(param.isRegenDate()){
-                scheduler.scheduleSyncDelayedTask(this, () -> mWorldRegenerator.regen(param));
-            }
-        }), 20*60L, 20*60L); //20ticks = 1sec
-    }
+        scheduler.runTaskTimerAsynchronously(this, () -> {
+                    ZonedDateTime now = ZonedDateTime.now();
 
-    private MultiverseCore loadMultiverseCore() {
-        Plugin plugin = getServer().getPluginManager().getPlugin("Multiverse-Core");
-
-        if (plugin instanceof MultiverseCore) {
-            Log.print("Hooked Multiverse-Core.");
-            return (MultiverseCore) plugin;
-        }
-
-        throw new RuntimeException("Multiverse-Core not found!");
+                    mRegenParamMap.forEach((key, param) -> {
+                        if (param.isRegenDate(now)) {
+                            scheduler.scheduleSyncDelayedTask(this, () -> WorldRegenerator.regen(param));
+                        }
+                    });
+                }
+        , 20*60L, 20*60L); //20ticks = 1sec
     }
 
     private void printHelp(CommandSender sender) {
         sender.sendMessage("---------- NekoWorldRegenコマンドヘルプ ----------");
-        sender.sendMessage("| " + ChatColor.GOLD + "/regen <world>" + ChatColor.WHITE + " -<world>を再生成します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/regen <name> " + ChatColor.WHITE + " -<name>パラメータで再生成します.");
         sender.sendMessage("| " + ChatColor.GOLD + "/regen list   " + ChatColor.WHITE + " -再生成ワールドの一覧を表示します.");
         sender.sendMessage("| " + ChatColor.GOLD + "/regen reload " + ChatColor.WHITE + " -設定ファイルをリロードします.");
         sender.sendMessage("| " + ChatColor.GOLD + "/regen help   " + ChatColor.WHITE + " -ヘルプを表示します.");

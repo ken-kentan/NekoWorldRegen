@@ -4,9 +4,11 @@ import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import jp.kentan.minecraft.neko_world_regen.NekoWorldRegen;
+import jp.kentan.minecraft.neko_world_regen.regen.provider.SchematicProvider;
+import jp.kentan.minecraft.neko_world_regen.regen.provider.WorldGuardProvider;
 import jp.kentan.minecraft.neko_world_regen.utils.Log;
+import jp.kentan.minecraft.neko_world_regen.utils.PluginLoader;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
@@ -14,81 +16,99 @@ import java.util.Random;
 
 public class WorldRegenerator {
 
-    private final static String WARN_MESSAGE = NekoWorldRegen.TAG + ChatColor.translateAlternateColorCodes('&', "&3ワールド再生成&rのため&b数秒間&r、サーバーが&4高負荷&rになります.");
+    private final static Server SERVER = Bukkit.getServer();
+    private final static Random RANDOM = new Random();
 
-    private Server mServer;
-    private ConsoleCommandSender mCommandSender;
+    private final static ConsoleCommandSender CMD_SENDER = Bukkit.getConsoleSender();
 
-    private MVWorldManager mWorldManager;
+    private static MVWorldManager sWorldManager;
 
-    private final Random RANDOM = new Random();
 
-    public WorldRegenerator(Server server, MultiverseCore multiverseCore){
-        mServer = server;
-        mCommandSender = server.getConsoleSender();
+    public static boolean setup(){
+        final MultiverseCore multiverseCore = PluginLoader.detectMultiverseCore();
 
-        mWorldManager = multiverseCore.getMVWorldManager();
+        if(multiverseCore == null){
+            Log.warn("Could not detect MultiverseCore.");
+            return false;
+        }
+
+        sWorldManager = multiverseCore.getMVWorldManager();
+
+
+        if(!PluginLoader.enabledWorldGuard()){
+            Log.print("Could not detect WorldGuard(Optional).");
+        }
+
+        if(!PluginLoader.enabledFastAsyncWorldEdit()){
+            Log.print("Could not detect FastAsyncWorldEdit(Optional).");
+        }
+
+        return true;
     }
 
-    public void regen(final RegenParameter param){
-        mServer.broadcastMessage(WARN_MESSAGE);
+    public static void regen(final RegenParameter param){
+        SERVER.broadcastMessage(WARN_MESSAGE);
 
-        if(!mWorldManager.unloadWorld(param.mWorldName)){
-            Log.warn("failed to unload " + param.mWorldName);
-        }
+        removeWorld(param.WORLD_NAME);
 
-        if(!mWorldManager.deleteWorld(param.mWorldName, true, true)){
-            File folder = new File(NekoWorldRegen.sServerPath + File.separator + param.mWorldName);
-            deleteFolder(folder);
-
-            if(folder.exists()){
-                Log.warn("failed to delete world of '" + param.mWorldName + "'");
-            }
-        }
-
-        final String seed = String.valueOf(RANDOM.nextLong());
-
-        if(!mWorldManager.addWorld(param.mWorldName, param.mEnvironment, seed, param.mWorldType, true, null, true)){
-            Log.warn("failed to regen world of '" + param.mWorldName + "'");
+        //World regen
+        if(!sWorldManager.addWorld(param.WORLD_NAME, param.ENVIRONMENT, String.valueOf(RANDOM.nextLong()), param.WORLD_TYPE, true, null, true)){
+            Log.warn("failed to regen world of '" + param.WORLD_NAME + "'");
             return;
         }
 
-        MultiverseWorld world = mWorldManager.getMVWorld(param.mWorldName);
-        world.setSpawnLocation(new Location(world.getCBWorld(), 0.5D, 63D, 0.5D, 180f, 0f));
-        world.setDifficulty(param.mDifficulty);
-        world.setAlias(param.mAlias);
-        world.setColor(param.mColor);
+        //World setup
+        final MultiverseWorld mvWorld = sWorldManager.getMVWorld(param.WORLD_NAME);
+        mvWorld.setDifficulty(param.DIFFICULTY);
+        mvWorld.setAlias(param.ALIAS);
+        mvWorld.setColor(param.ALIAS_COLOR.toString());
 
-        final Location spawnLocation = world.getSpawnLocation();
-        final World spawnWorld = spawnLocation.getWorld();
+        final Location spawn = mvWorld.getSpawnLocation();
+        final World world = spawn.getWorld();
 
-        //エンドじゃなかったらスポーン作成
-        if(spawnWorld.getEnvironment() != World.Environment.THE_END) {
-            final Block spawn = spawnLocation.getBlock();
-
-            for(int y = 3; y >= -1; --y) {
-                for (int x = 1; x >= -1; --x) {
-                    for (int z = 1; z >= -1; --z) {
-                        Location location = new Location(spawnWorld, spawn.getX() + x, spawn.getY() + y, spawn.getZ() + z);
-
-                        location.getBlock().setType((y >= 0) ? Material.AIR : ((x == 0 && z == 0) ? Material.GLOWSTONE : Material.BEDROCK));
-                    }
-                }
+        //Spawn Schematic
+        if(PluginLoader.enabledFastAsyncWorldEdit() && param.SCHEMATIC_FILE != null) {
+            try {
+                SchematicProvider.paste(param.SCHEMATIC_FILE, world, spawn);
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
 
-        param.mFinishCommandList.forEach(cmd -> {
-            cmd = cmd.replace("{spawnX}", Integer.toString((int) spawnLocation.getX())).replace("{spawnZ}", Integer.toString((int) spawnLocation.getZ()));
+        //Spawn Protect
+        if(PluginLoader.enabledWorldGuard() && param.PROTECT_SIZE > 0){
+            WorldGuardProvider.protect(spawn, param.PROTECT_SIZE);
+        }
 
-            mServer.dispatchCommand(mCommandSender, cmd);
-            Log.print(cmd);
+
+        param.FINISH_CMD_LIST.forEach(cmd -> {
+            cmd = cmd.replace("{spawnX}", Integer.toString(spawn.getBlockX()));
+            cmd = cmd.replace("{spawnY}", Integer.toString(spawn.getBlockY()));
+            cmd = cmd.replace("{spawnZ}", Integer.toString(spawn.getBlockZ()));
+
+            SERVER.dispatchCommand(CMD_SENDER, cmd);
         }
         );
 
         param.updateLastRegenDate();
 
-        mServer.broadcastMessage(NekoWorldRegen.TAG + param.mBroadcastMessage);
+        SERVER.broadcastMessage(NekoWorldRegen.PREFIX + param.BROADCAST_MSG);
         Log.print("Regen sequence finished!");
+    }
+
+    private static void removeWorld(String worldName){
+        if(!sWorldManager.unloadWorld(worldName)){
+            Log.warn("failed to unload " + worldName);
+        }
+
+        if(!sWorldManager.deleteWorld(worldName, true, true)){
+            File folder = new File(NekoWorldRegen.sServerPath + File.separator + worldName);
+            deleteFolder(folder);
+
+            if(folder.exists()){
+                Log.warn("failed to delete world of '" + worldName + "'");
+            }
+        }
     }
 
     private static void deleteFolder(File f){
@@ -110,4 +130,7 @@ public class WorldRegenerator {
             f.delete();
         }
     }
+
+    private final static String WARN_MESSAGE = NekoWorldRegen.PREFIX + ChatColor.translateAlternateColorCodes('&', "&3ワールド再生成&rのため&b数秒間&r、サーバーが&4高負荷&rになります.");
+
 }

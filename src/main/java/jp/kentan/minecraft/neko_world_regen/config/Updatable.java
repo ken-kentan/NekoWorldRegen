@@ -1,7 +1,7 @@
 package jp.kentan.minecraft.neko_world_regen.config;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public interface Updatable {
-    void updateLastRegenDate(String path, Date date);
+    void updateLastRegenDate(String worldName, ZonedDateTime date);
 }
