@@ -1,21 +1,21 @@
 ﻿RegenParams:
-  Sample:
-    lastRegenDate: '2017-01-01 00:00:00'
-    World:
-      name: "sample_world"
-      type: NORMAL
-      environment: NORMAL
-      difficulty: NORMAL
-      Alias:
-        text: "再生成サンプルワールド"
-        color: DARK_GRAY
-    Period:
-      month: 0
-      dayOfWeek: EVERYDAY
-      hour: 0
-    Spawn:
-      schematic: ""
-      protectSize: 10
-    broadcast: "再生成サンプルワールドを&3再生成&rしました!"
-    finishCommands:
-    - wb sample_world set 1500 {spawnX} {spawnZ}
+#  Sample:
+#    lastRegenDate: '2017-01-01 00:00:00'
+#    World:
+#      name: "sample_world"
+#      type: NORMAL
+#      environment: NORMAL
+#      difficulty: NORMAL
+#      Alias:
+#        text: "再生成サンプルワールド"
+#        color: DARK_GRAY
+#    Period:
+#      month: 0
+#      dayOfWeek: EVERYDAY
+#      hour: 0
+#    Spawn:
+#      schematic: ""
+#      protectSize: 11
+#    broadcast: "再生成サンプルワールドを&3再生成&rしました!"
+#    finishCommands:
+#    - wb sample_world set 1500 {spawnX} {spawnZ}
