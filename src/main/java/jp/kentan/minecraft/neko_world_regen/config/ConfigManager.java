@@ -28,11 +28,11 @@ public class ConfigManager implements Updatable {
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
     private final static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
-    private File mConfigFile;
+    private final File mConfigFile;
     private File mSchematicFolder;
-    private String mConfigFilePath;
+    private final String mConfigFilePath;
 
-    private Map<String, RegenParameter> mRegenParamMap = new HashMap<>();
+    private final Map<String, RegenParameter> mRegenParamMap = new HashMap<>();
 
     public ConfigManager(Plugin plugin){
         File dataFolder = plugin.getDataFolder();

@@ -20,7 +20,7 @@ public enum AliasColor {
 
     private final String toString;
 
-    private AliasColor(String string){
+    AliasColor(String string){
         toString = string;
     }
 

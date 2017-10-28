@@ -22,7 +22,7 @@ public class NekoWorldRegen extends JavaPlugin {
     public static String sServerPath;
 
     private ConfigManager mConfig;
-    private Map<String, RegenParameter> mRegenParamMap = Collections.synchronizedMap(new HashMap<String, RegenParameter>());
+    private final Map<String, RegenParameter> mRegenParamMap = Collections.synchronizedMap(new HashMap<String, RegenParameter>());
 
     @Override
     public void onEnable() {

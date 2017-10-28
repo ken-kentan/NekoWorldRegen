@@ -20,8 +20,8 @@ public class RegenParameter{
     private ZonedDateTime mLastRegenDate;
 
     //Period
-    private int mMonth, mHour;
-    private DayOfWeek mDayOfWeek;
+    private final int MONTH, HOUR;
+    private final DayOfWeek DAY_OF_WEEK;
 
     private final String NAME;
 
@@ -65,9 +65,9 @@ public class RegenParameter{
         ALIAS = alias;
         ALIAS_COLOR = aliasColor;
 
-        mMonth = month;
-        mDayOfWeek = dayOfWeek;
-        mHour = hour;
+        MONTH = month;
+        DAY_OF_WEEK = dayOfWeek;
+        HOUR = hour;
 
         SCHEMATIC_FILE = schematicFile;
         PROTECT_SIZE = protectSize;
@@ -86,7 +86,7 @@ public class RegenParameter{
     }
 
     public boolean isRegenDate(ZonedDateTime now){
-        if(mMonth > 0 && diffMonth(mLastRegenDate, now) < mMonth){
+        if(MONTH > 0 && diffMonth(mLastRegenDate, now) < MONTH){
             return false;
         }
 
@@ -96,11 +96,11 @@ public class RegenParameter{
         }
 
         //check DayOfWeek
-        if(mDayOfWeek != null && mDayOfWeek != now.getDayOfWeek()){
+        if(DAY_OF_WEEK != null && DAY_OF_WEEK != now.getDayOfWeek()){
             return false;
         }
 
-        return now.get(ChronoField.HOUR_OF_DAY) >= mHour;
+        return now.get(ChronoField.HOUR_OF_DAY) >= HOUR;
     }
 
     private static long diffMonth(Temporal from, Temporal to){
