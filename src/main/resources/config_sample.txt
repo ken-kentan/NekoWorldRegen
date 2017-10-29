@@ -10,12 +10,12 @@ RegenParams:
         text: "再生成サンプルワールド"
         color: DARK_GRAY                                #BLACK, DARK_BLUE, DARK_GREEN etc... (https://minecraft.gamepedia.com/Formatting_codes#Color_codes)
     Period:
-      month: 0                                          #何ヶ月周期で再生成するか
+      month: 0                                          #何ヶ月周期で再生成するか (0は毎週)
       dayOfWeek: EVERYDAY                               #EVERYDAY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
       hour: 0                                           #何時に再生成するか(0~23)
     Spawn:
-      schematic: ""                                     #スポーンを自動生成(FastAsyncWorldEdit必須)
-      protectSize: 11                                   #スポーンを保護するサイズ(WorldGuard必須, 3以上の奇数)
+      schematic: ""                                     #スポーンを自動生成(オプション, FastAsyncWorldEdit必須)
+      protectSize: 11                                   #スポーンを保護するサイズ(オプション, WorldGuard必須, 3以上の奇数)
     broadcast: "再生成サンプルワールドを&3再生成&rしました!" #再生成完了時にアナウンスされるメッセージ
-    finishCommands:                                     #再生成完了時に実行されるコマンドリスト
+    finishCommands:                                     #再生成完了時に実行されるコマンドリスト({spawnX}, {spawnY}, {spawnZ}はワールドのスポーン座標に置換されます)
     - wb sample_world set 1500 {spawnX} {spawnZ}
