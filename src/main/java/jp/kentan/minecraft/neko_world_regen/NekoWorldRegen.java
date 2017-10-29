@@ -122,10 +122,11 @@ public class NekoWorldRegen extends JavaPlugin {
 
     private void printHelp(CommandSender sender) {
         sender.sendMessage("---------- NekoWorldRegenコマンドヘルプ ----------");
-        sender.sendMessage("| " + ChatColor.GOLD + "/regen <name> " + ChatColor.WHITE + " -<name>パラメータで再生成します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/regen list   " + ChatColor.WHITE + " -再生成ワールドの一覧を表示します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/regen reload " + ChatColor.WHITE + " -設定ファイルをリロードします.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/regen help   " + ChatColor.WHITE + " -ヘルプを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/regen <name>      " + ChatColor.WHITE + " -<name>パラメータで再生成.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/regen info <name> " + ChatColor.WHITE + " -<name>パラメータの情報を表示.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/regen list        " + ChatColor.WHITE + " -再生成ワールドの一覧を表示.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/regen reload      " + ChatColor.WHITE + " -設定ファイルをリロード.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/regen help        " + ChatColor.WHITE + " -ヘルプを表示.");
         sender.sendMessage("---------------------------------------");
     }
 }

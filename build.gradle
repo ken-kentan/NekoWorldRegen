@@ -1,5 +1,5 @@
 group 'jp.kentan.minecraft.neko_world_regen'
-version '1.2.3'
+version '1.2.5'
 
 apply plugin: 'java'
 
