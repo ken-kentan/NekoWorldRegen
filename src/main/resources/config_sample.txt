@@ -8,7 +8,7 @@ RegenParams:
       difficulty: NORMAL                                #EASY, NORMAL, HARD
       Alias:
         text: "再生成サンプルワールド"
-        color: DARK_GRAY
+        color: DARK_GRAY                                #BLACK, DARK_BLUE, DARK_GREEN etc... (https://minecraft.gamepedia.com/Formatting_codes#Color_codes)
     Period:
       month: 0                                          #何ヶ月周期で再生成するか
       dayOfWeek: EVERYDAY                               #EVERYDAY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY

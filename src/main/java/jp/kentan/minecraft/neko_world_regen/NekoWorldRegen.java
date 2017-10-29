@@ -67,10 +67,21 @@ public class NekoWorldRegen extends JavaPlugin {
                 mRegenParamMap.clear();
                 mRegenParamMap.putAll(mConfig.getRegenParamMap());
 
-                sender.sendMessage(PREFIX + "reloaded config file.");
+                sender.sendMessage(PREFIX + "パラメータを更新しました.");
+                break;
+            case "info":
+                if(params >= 2){
+                    if(mRegenParamMap.containsKey(args[1])){
+                        sender.sendMessage(mRegenParamMap.get(args[1]).getInfo());
+                    }else{
+                        sender.sendMessage(PREFIX + ChatColor.YELLOW + args[1] + "は存在しません.");
+                    }
+                }else{
+                    sender.sendMessage(PREFIX + ChatColor.YELLOW + "パラメータ名を指定して下さい.");
+                }
                 break;
             case "list":
-                StringBuilder builder = new StringBuilder(PREFIX + " ---Regen Parameter List---\n");
+                StringBuilder builder = new StringBuilder("---パラメータ一覧---\n");
 
                 if(mRegenParamMap.size() > 0) {
                     mRegenParamMap.forEach((key, param) -> {
@@ -78,8 +89,6 @@ public class NekoWorldRegen extends JavaPlugin {
                         builder.append(", ");
                     });
                     builder.delete(builder.length()-2, builder.length());
-                }else{
-                    builder.append("Empty.");
                 }
 
                 sender.sendMessage(builder.toString());

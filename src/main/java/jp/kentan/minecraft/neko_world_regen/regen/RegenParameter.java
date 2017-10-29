@@ -103,6 +103,16 @@ public class RegenParameter{
         return now.get(ChronoField.HOUR_OF_DAY) >= HOUR;
     }
 
+    public String getInfo(){
+        String info =
+                "ワールド名: " + WORLD_NAME + '\n' +
+                "再生成周期: " + ((MONTH > 0) ? (MONTH + "ヶ月, ") : "毎週, ") +
+                        ((DAY_OF_WEEK != null) ? DAY_OF_WEEK.toString() : "EVERYDAY") + ", " + HOUR + "時";
+
+
+        return ChatColor.translateAlternateColorCodes('&', info);
+    }
+
     private static long diffMonth(Temporal from, Temporal to){
         return ChronoUnit.MONTHS.between(from, to) * 12 + to.get(ChronoField.MONTH_OF_YEAR) - from.get(ChronoField.MONTH_OF_YEAR);
     }
