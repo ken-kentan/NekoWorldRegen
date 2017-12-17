@@ -38,6 +38,7 @@ public class RegenParameter{
     //Spawn
     final File SCHEMATIC_FILE;
     final int PROTECT_SIZE;
+    final boolean IS_ADJUST;
 
     final String BROADCAST_MSG;
 
@@ -50,7 +51,7 @@ public class RegenParameter{
                           String worldName, World.Environment environment, WorldType worldType, Difficulty difficulty,
                           String alias, AliasColor aliasColor,
                           int month, DayOfWeek dayOfWeek, int hour,
-                          File schematicFile, int protectSize,
+                          File schematicFile, int protectSize, boolean isAdjust,
                           String broadcastMessage, List<String> finishCmdList, Updatable updatable){
 
         mLastRegenDate = lastRegenDate;
@@ -71,6 +72,7 @@ public class RegenParameter{
 
         SCHEMATIC_FILE = schematicFile;
         PROTECT_SIZE = protectSize;
+        IS_ADJUST = isAdjust;
 
         BROADCAST_MSG = ChatColor.translateAlternateColorCodes('&', broadcastMessage);
 

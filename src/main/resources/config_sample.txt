@@ -16,6 +16,7 @@ RegenParams:
     Spawn:
       schematic: ""                                     #スポーンを自動生成(オプション, FastAsyncWorldEdit必須)
       protectSize: 11                                   #スポーンを保護するサイズ(オプション, WorldGuard必須, 3以上の奇数)
+      isAdjust: false                                   #スポーン位置を自動で調整
     broadcast: "再生成サンプルワールドを&3再生成&rしました!" #再生成完了時にアナウンスされるメッセージ
     finishCommands:                                     #再生成完了時に実行されるコマンドリスト({spawnX}, {spawnY}, {spawnZ}はワールドのスポーン座標に置換されます)
     - wb sample_world set 1500 {spawnX} {spawnZ}

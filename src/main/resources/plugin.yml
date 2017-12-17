@@ -3,6 +3,8 @@ main: jp.kentan.minecraft.neko_world_regen.NekoWorldRegen
 version: 1.2.5
 author: ken_kentan
 website: http://ken.kentan.jp
+depend: [Multiverse-Core]
+softdepend: [WorldGuard, FastAsyncWorldEdit]
 
 commands:
     regen:

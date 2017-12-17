@@ -59,6 +59,7 @@ public class WorldRegenerator {
 
         //World setup
         final MultiverseWorld mvWorld = sWorldManager.getMVWorld(param.WORLD_NAME);
+        mvWorld.setAdjustSpawn(param.IS_ADJUST);
         mvWorld.setDifficulty(param.DIFFICULTY);
         mvWorld.setAlias(param.ALIAS);
         mvWorld.setColor(param.ALIAS_COLOR.toString());

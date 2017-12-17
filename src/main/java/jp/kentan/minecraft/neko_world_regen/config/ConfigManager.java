@@ -102,6 +102,7 @@ public class ConfigManager implements Updatable {
             //Spawn
             String schematic = config.getString(path + "Spawn.schematic");
             int protectSize = config.getInt(path + "Spawn.protectSize");
+            boolean isAdjust = config.getBoolean(path + "Spawn.isAdjust");
 
             //Other
             String broadcastMsg = config.getString(path + "broadcast");
@@ -114,7 +115,7 @@ public class ConfigManager implements Updatable {
                     worldName, type, env, diff,
                     alias, color,
                     month, dayOfWeek, hour,
-                    schematic, protectSize,
+                    schematic, protectSize, isAdjust,
                     broadcastMsg, cmds
             );
 
@@ -146,7 +147,7 @@ public class ConfigManager implements Updatable {
                                              String worldName, String strWorldType, String strWorldEnv, String strWorldDiff,
                                              String alias, String strAliasColor,
                                              int month, String strDayOfWeek, int hour,
-                                             String strSchematic, int protectSize,
+                                             String strSchematic, int protectSize, boolean isAdjust,
                                              String broadcastMsg, List<String> finishCmds) {
         try {
             ZonedDateTime lastDate = ZonedDateTime.parse(strLastDate, DATE_FORMAT);
@@ -201,7 +202,7 @@ public class ConfigManager implements Updatable {
                     worldName, env, type, diff,
                     alias, aliasColor,
                     month, dayOfWeek, hour,
-                    schematicFile, protectSize,
+                    schematicFile, protectSize, isAdjust,
                     broadcastMsg, finishCmds, this
             );
         } catch (Exception e) {
