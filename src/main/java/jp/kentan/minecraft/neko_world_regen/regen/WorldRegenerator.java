@@ -51,8 +51,13 @@ public class WorldRegenerator {
 
         removeWorld(param.WORLD_NAME);
 
+        String strSeed = String.valueOf(RANDOM.nextLong());
+        if (param.SEED != 0) {
+            strSeed = String.valueOf(param.SEED);
+        }
+
         //World regen
-        if(!sWorldManager.addWorld(param.WORLD_NAME, param.ENVIRONMENT, String.valueOf(RANDOM.nextLong()), param.WORLD_TYPE, true, null, true)){
+        if(!sWorldManager.addWorld(param.WORLD_NAME, param.ENVIRONMENT, strSeed, param.WORLD_TYPE, true, null, true)){
             Log.warn("failed to regen world of '" + param.WORLD_NAME + "'");
             return;
         }

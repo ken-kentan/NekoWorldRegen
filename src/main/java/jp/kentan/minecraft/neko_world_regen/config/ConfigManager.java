@@ -87,8 +87,9 @@ public class ConfigManager implements Updatable {
             //World
             String worldName = config.getString(path + "World.name");
             String type = config.getString(path + "World.type");
-            String env   = config.getString(path + "World.environment");
-            String diff  = config.getString(path + "World.difficulty");
+            String env  = config.getString(path + "World.environment");
+            String diff = config.getString(path + "World.difficulty");
+            long seed   = config.getLong(path + "World.seed");
 
             //World Alias
             String alias = config.getString(path + "World.Alias.text");
@@ -112,7 +113,7 @@ public class ConfigManager implements Updatable {
             RegenParameter param = compileRegenParam(
                     name,
                     lastRegenDate,
-                    worldName, type, env, diff,
+                    worldName, type, env, diff, seed,
                     alias, color,
                     month, dayOfWeek, hour,
                     schematic, protectSize, isAdjust,
@@ -144,7 +145,7 @@ public class ConfigManager implements Updatable {
     }
 
     private RegenParameter compileRegenParam(String name, String strLastDate,
-                                             String worldName, String strWorldType, String strWorldEnv, String strWorldDiff,
+                                             String worldName, String strWorldType, String strWorldEnv, String strWorldDiff, long seed,
                                              String alias, String strAliasColor,
                                              int month, String strDayOfWeek, int hour,
                                              String strSchematic, int protectSize, boolean isAdjust,
@@ -199,7 +200,7 @@ public class ConfigManager implements Updatable {
 
             return new RegenParameter(
                     name, lastDate,
-                    worldName, env, type, diff,
+                    worldName, env, type, diff, seed,
                     alias, aliasColor,
                     month, dayOfWeek, hour,
                     schematicFile, protectSize, isAdjust,

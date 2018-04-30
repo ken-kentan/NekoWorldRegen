@@ -30,6 +30,7 @@ public class RegenParameter{
     final World.Environment ENVIRONMENT;
     final WorldType WORLD_TYPE;
     final Difficulty DIFFICULTY;
+    final long SEED;
 
     //Alias
     final String ALIAS;
@@ -48,7 +49,7 @@ public class RegenParameter{
 
 
     public RegenParameter(String name, ZonedDateTime lastRegenDate,
-                          String worldName, World.Environment environment, WorldType worldType, Difficulty difficulty,
+                          String worldName, World.Environment environment, WorldType worldType, Difficulty difficulty, long seed,
                           String alias, AliasColor aliasColor,
                           int month, DayOfWeek dayOfWeek, int hour,
                           File schematicFile, int protectSize, boolean isAdjust,
@@ -62,6 +63,7 @@ public class RegenParameter{
         ENVIRONMENT = environment;
         WORLD_TYPE = worldType;
         DIFFICULTY = difficulty;
+        SEED = seed;
 
         ALIAS = alias;
         ALIAS_COLOR = aliasColor;
