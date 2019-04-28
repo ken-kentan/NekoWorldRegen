@@ -20,18 +20,18 @@ repositories {
 
     maven {
         name "fawe-api"
-        url "http://ci.athion.net/job/FastAsyncWorldEdit/ws/mvn/"
+        url "https://ci.athion.net/job/FastAsyncWorldEdit-1.13/ws/mvn"
     }
 }
 
 dependencies {
 //    testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
-    compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
-    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+    compileOnly 'org.bukkit:bukkit:1.13-R0.1-SNAPSHOT'
     compileOnly 'com.boydti:fawe-api:latest'
-    compileOnly files('libs/Multiverse-Core-2.5.1.jar') //http://repo.onarandombox.com/content/repositories/multiverse/com/onarandombox/multiversecore/Multiverse-Core/
+    compileOnly 'com.sk89q.worldguard:worldguard-legacy:7.0.0-SNAPSHOT'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.0.0-SNAPSHOT'
+    compileOnly files('libs/Multiverse-Core-3.0.0-SNAPSHOT.jar') //http://repo.onarandombox.com/content/repositories/multiverse/com/onarandombox/multiversecore/Multiverse-Core/
 }
 
 compileJava.options.encoding = 'UTF-8'
