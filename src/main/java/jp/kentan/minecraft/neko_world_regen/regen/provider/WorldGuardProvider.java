@@ -43,6 +43,7 @@ public class WorldGuardProvider {
         ProtectedRegion region = new ProtectedCuboidRegion("spawn", min, max);
         region.setFlag(Flags.USE, StateFlag.State.ALLOW);
         region.setFlag(Flags.CHEST_ACCESS, StateFlag.State.ALLOW);
+        region.setFlag(Flags.LAVA_FLOW, StateFlag.State.DENY);
 
         manager.addRegion(region);
     }
